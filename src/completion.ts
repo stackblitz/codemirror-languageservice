@@ -2,7 +2,8 @@ import {
   type Completion,
   type CompletionSource,
   insertCompletionText,
-  snippet
+  snippet,
+  completeFromList
 } from '@codemirror/autocomplete'
 import {
   type CompletionContext,
@@ -218,11 +219,6 @@ export function createCompletionSource(options: createCompletionSource.Options):
       completionOptions.push(completion)
     }
 
-    return {
-      from: minFrom,
-      to: maxTo,
-      commitCharacters: itemDefaults?.commitCharacters,
-      options: completionOptions
-    }
+    return completeFromList(completionOptions)(context)
   }
 }
