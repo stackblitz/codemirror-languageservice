@@ -208,10 +208,11 @@ export function createCompletionSource(options: createCompletionSource.Options):
         const insert = textEdit.newText
         const insertTextFormat = item.insertTextFormat ?? itemDefaults?.insertTextFormat
 
-        completion.apply = (view) =>
-          insertTextFormat === (2 satisfies typeof InsertTextFormat.Snippet)
+        completion.apply = (view, completion, _, to) => {
+          return insertTextFormat === (2 satisfies typeof InsertTextFormat.Snippet)
             ? snippet(insert.replaceAll(/\$(\d+)/g, '$${$1}'))(view, completion, from, to)
             : view.dispatch(insertCompletionText(view.state, insert, from, to))
+        }
       } else if (textEditText) {
         completion.apply = textEditText
       }
