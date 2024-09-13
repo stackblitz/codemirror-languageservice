@@ -29,6 +29,7 @@
   "scripts": {
     "prepack": "tsc --build",
     "prestart": "tsc --build",
+    "build": "tsc --build",
     "dev": "tsc -b --watch --preserveWatchOutput",
     "start": "vite example",
     "test": "vitest run"
