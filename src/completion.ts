@@ -5,6 +5,7 @@ import {
   snippet,
   completeFromList
 } from '@codemirror/autocomplete'
+import { type EditorState } from '@codemirror/state'
 import {
   type CompletionContext,
   type CompletionItem,
@@ -17,7 +18,7 @@ import {
 import { type TextDocument } from 'vscode-languageserver-textdocument'
 
 import { fromMarkupContent } from './markup-content.js'
-import { getTextDocument } from './text-document.js'
+import { getTextDocument as defaultGetTextDocument } from './text-document.js'
 import { type LSPResult } from './types.js'
 
 let alphabet = 'abcdefghijklmnopqrstuvwxyz'
@@ -109,6 +110,17 @@ export declare namespace createCompletionSource {
     ) => LSPResult<CompletionList | Iterable<CompletionItem>>
 
     /**
+     * A custom way to access the document. Default to using
+     * `getTextDocument` provided by the `textDocument` extension.
+     *
+     * @param state
+     *   The editor state
+     * @returns
+     *   A TextDocument instance
+     */
+    getTextDocument?: (state: EditorState) => TextDocument
+
+    /**
      * The section to use for completions.
      */
     section?: string
@@ -134,6 +146,8 @@ export function createCompletionSource(options: createCompletionSource.Options):
   if (options.triggerCharacters) {
     triggerCharacters += options.triggerCharacters
   }
+
+  const getTextDocument = options.getTextDocument ?? defaultGetTextDocument
 
   return async (context) => {
     const textDocument = getTextDocument(context.state)

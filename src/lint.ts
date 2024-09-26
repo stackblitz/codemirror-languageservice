@@ -1,8 +1,9 @@
 import { type Diagnostic as CodeMirrorDiagnostic, type LintSource } from '@codemirror/lint'
+import { type EditorState } from '@codemirror/state'
 import { type Diagnostic, type DiagnosticTag } from 'vscode-languageserver-protocol'
 import { type TextDocument } from 'vscode-languageserver-textdocument'
 
-import { getTextDocument } from './text-document.js'
+import { getTextDocument as defaultGetTextDocument } from './text-document.js'
 import { type LSPResult } from './types.js'
 
 const defaultFormatSource: NonNullable<createLintSource.Options['formatSource']> = (diagnostic) => {
@@ -41,6 +42,17 @@ export declare namespace createLintSource {
     formatSource?: (diagnostic: Diagnostic) => string | undefined
 
     /**
+     * A custom way to access the document. Default to using
+     * `getTextDocument` provided by the `textDocument` extension.
+     *
+     * @param state
+     *   The editor state
+     * @returns
+     *   A TextDocument instance
+     */
+    getTextDocument?: (state: EditorState) => TextDocument
+
+    /**
      * An additional class for all diagnostics provided by this validation.
      */
     markClass?: string
@@ -74,6 +86,7 @@ export declare namespace createLintSource {
  */
 export function createLintSource(options: createLintSource.Options): LintSource {
   const formatSource = options.formatSource ?? defaultFormatSource
+  const getTextDocument = options.getTextDocument ?? defaultGetTextDocument
 
   return async (view) => {
     const textDocument = getTextDocument(view.state)

@@ -1,9 +1,10 @@
 import { type HoverTooltipSource } from '@codemirror/view'
+import { type EditorState } from '@codemirror/state'
 import { type Hover, type Position } from 'vscode-languageserver-protocol'
 import { type TextDocument } from 'vscode-languageserver-textdocument'
 
 import { fromMarkupContent } from './markup-content.js'
-import { getTextDocument } from './text-document.js'
+import { getTextDocument as defaultGetTextDocument } from './text-document.js'
 import { type LSPResult } from './types.js'
 
 export declare namespace createHoverTooltipSource {
@@ -19,6 +20,17 @@ export declare namespace createHoverTooltipSource {
      *   The hover info for the given document and position.
      */
     doHover: (textDocument: TextDocument, position: Position) => LSPResult<Hover>
+
+    /**
+     * A custom way to access the document. Default to using
+     * `getTextDocument` provided by the `textDocument` extension.
+     *
+     * @param state
+     *   The editor state
+     * @returns
+     *   A TextDocument instance
+     */
+    getTextDocument?: (state: EditorState) => TextDocument
   }
 }
 
@@ -33,6 +45,8 @@ export declare namespace createHoverTooltipSource {
 export function createHoverTooltipSource(
   options: createHoverTooltipSource.Options
 ): HoverTooltipSource {
+  const getTextDocument = options.getTextDocument ?? defaultGetTextDocument
+
   return async (view, pos) => {
     const textDocument = getTextDocument(view.state)
 
